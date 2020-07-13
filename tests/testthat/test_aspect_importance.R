@@ -164,7 +164,7 @@ test_that("check plot (facets) for aspects importance",{
   
   expect_is(plot(aspect_importance_apartments1, aspect_importance_apartments2,
                  aspect_importance_apartments3, add_importance = TRUE,
-                 aspects_on_axis = FALSE, digits_to_round = 0), "gg")
+                 show_features = FALSE, digits_to_round = 0), "gg")
 })
 
 
@@ -214,6 +214,8 @@ test_that("check plot for aspect_importance",{
   expect_true(is.ggplot(p2))
   expect_identical(p1$labels$y, "Aspects importance")
   expect_error(plot.aspect_importance(apartments))
+  expect_error(plot(p1), NA)
+  expect_error(plot(p2), NA)
 })
 
 test_that("check plot for aspect_importance with positive numbers",{
@@ -234,6 +236,8 @@ test_that("check plot for aspect_importance with positive numbers",{
   p1 <- plot(aspect_importance_apartments)
   expect_true(is.ggplot(p1))
   expect_true(all(p1$data$importance > 0))
+  expect_error(plot(p1), NA)
+
 })
 
 

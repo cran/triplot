@@ -23,6 +23,8 @@
 #'   "ratio" returns \code{drop_loss/drop_loss_full_model}.
 #' @param clust_method the agglomeration method to be used, see
 #'   \code{\link[stats]{hclust}} methods
+#' @param cor_method the correlation method to be used see 
+#'   \code{\link[stats]{cor}} methods
 #' @param absolute_value if TRUE, aspects importance values will be drawn as
 #'   absolute values
 #' @param show_labels if TRUE, plot will have annotated axis Y
@@ -66,6 +68,7 @@ hierarchical_importance <- function(x, data, y = NULL,
                                     B = 10,
                                     fi_type = c("raw", "ratio", "difference"),
                                     clust_method = "complete",
+                                    cor_method = "spearman",
                                     ...) {
   
   if (all(type != "predict", is.null(y))) {
@@ -77,7 +80,7 @@ hierarchical_importance <- function(x, data, y = NULL,
   
   # Building helper objects ---------------------------------------------
   
-  x_hc <- hclust(as.dist(1 - abs(cor(data, method = "spearman"))),
+  x_hc <- hclust(as.dist(1 - abs(cor(data, method = cor_method))),
                  method = clust_method)
   cutting_heights <- x_hc$height
   aspects_list_previous <-  list_variables(x_hc, 1)
@@ -101,7 +104,7 @@ hierarchical_importance <- function(x, data, y = NULL,
                            verbose = FALSE)
       res_ai <- feature_importance(explainer = explainer,
                                    variable_groups = aspects_list_current,
-                                   n_sample = N,
+                                   N = N,
                                    loss_function = loss_function,
                                    B = B,
                                    type = fi_type)
@@ -126,7 +129,7 @@ hierarchical_importance <- function(x, data, y = NULL,
   if (type != "predict") {
     res <- feature_importance(explainer = explainer,
                               variable_groups = list_variables(x_hc, 0),
-                              n_sample = N,
+                              N = N,
                               loss_function = loss_function,
                               B = B)
     res <- res[res$permutation == "0", ]

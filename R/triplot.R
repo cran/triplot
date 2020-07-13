@@ -30,6 +30,8 @@
 #'   "ratio" returns \code{drop_loss/drop_loss_full_model}.
 #' @param clust_method the agglomeration method to be used, see
 #'   \code{\link[stats]{hclust}} methods
+#' @param cor_method the correlation method to be used see 
+#'   \code{\link[stats]{cor}} methods
 #' @param ... other parameters
 #'
 #' @import stats
@@ -73,6 +75,7 @@ calculate_triplot.explainer <- function(x,
                                         fi_type =
                                           c("raw", "ratio", "difference"),
                                         clust_method = "complete",
+                                        cor_method = "spearman",
                                         ...) {
   
   type <- match.arg(type)
@@ -109,6 +112,7 @@ calculate_triplot.explainer <- function(x,
                             B = B,
                             fi_type = fi_type,
                             clust_method = clust_method,
+                            cor_method = cor_method,
                             label = label)
 }
 
@@ -126,6 +130,7 @@ calculate_triplot.default <- function(x, data, y = NULL,
                                       B = 10,
                                       fi_type = c("raw", "ratio", "difference"),
                                       clust_method = "complete",
+                                      cor_method = "spearman",
                                       ...) {
   
   type <- match.arg(type)
@@ -142,11 +147,13 @@ calculate_triplot.default <- function(x, data, y = NULL,
                                 loss_function = loss_function,
                                 B = B,
                                 fi_type = fi_type,
-                                clust_method = clust_method)
+                                clust_method = clust_method,
+                                cor_method = cor_method)
   
   # Calculations for third plot -----------------------------------------------
   
-  cv <- cluster_variables(data, clust_method)
+  cv <- cluster_variables(data, clust_method = clust_method, 
+                          cor_method = cor_method)
   
   # Calculations for first plot -----------------------------------------------
   
@@ -157,7 +164,7 @@ calculate_triplot.default <- function(x, data, y = NULL,
                          verbose = FALSE)
     
     importance_leaves <- feature_importance(explainer = explainer,
-                                            n_sample = N,
+                                            N = N,
                                             loss_function = loss_function,
                                             B = B,
                                             type = fi_type)
@@ -315,11 +322,12 @@ plot.triplot <- function(x,
     p1 <- p1 + theme(axis.text = element_text(size = axis_lab_size),
                      axis.title = element_text(size = axis_lab_size),
                      strip.background = element_blank(),
-                     strip.text.x = element_blank(),
                      panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
                     plot.title = element_blank()) 
 
+    p1 <- p1 + facet_null()
+    
     order_mod <-
       attr(p3, "labels")[reorder(attr(p3, "labels"), attr(p3, "order"))]
     order_mod <-  match(order_mod, p1$data$variable)
